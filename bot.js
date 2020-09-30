@@ -1,122 +1,90 @@
-const express = require("express");
-const app = express();
-const http = require("http");
-app.get("/", (request, response) => {
-  console.log(
-    `Az Önce Bot Ping yedi, Sorun önemli değil merak etme. Hatayı düzelttik.`
-  );
-  response.sendStatus(200);
-});
-app.listen(process.env.PORT);
-setInterval(() => {
-  http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`);
-}, 280000);
-const Discord = require("discord.js");
-const db = require('quick.db')
+const Discord = require('discord.js');
 const client = new Discord.Client();
-const ayarlar = require("./ayarlar.json");
-const fs = require("fs");
-const moment = require("moment");
-moment.locale("tr")
-const chalk = require("chalk");
-require("./util/eventLoader")(client);
+const {prefix, token} = require("./ayarlar.json")
 
-var prefix = ayarlar.prefix;
+var queue = new Map();
 
-const log = message => {
-  console.log(`[${moment().format("YYYY-MM-DD HH:mm:ss")}] ${message}`);
-};
+const ytdl = require('ytdl-core');
 
-client.commands = new Discord.Collection();
-client.aliases = new Discord.Collection();
-fs.readdir("./komutlar/", (err, files) => {
-  if (err) console.error(err);
-  log(`${files.length} komut yüklenecek.`);
-  files.forEach(f => {
-    let props = require(`./komutlar/${f}`);
-    log(`Yüklenen komut: ${props.help.name}.`);
-    client.commands.set(props.help.name, props);
-    props.conf.aliases.forEach(alias => {
-      client.aliases.set(alias, props.help.name);
-    });
-  });
-});
+client.on('ready', () => console.log("ready"));
 
-client.reload = command => {
-  return new Promise((resolve, reject) => {
-    try {
-      delete require.cache[require.resolve(`./komutlar/${command}`)];
-      let cmd = require(`./komutlar/${command}`);
-      client.commands.delete(command);
-      client.aliases.forEach((cmd, alias) => {
-        if (cmd === command) client.aliases.delete(alias);
-      });
-      client.commands.set(command, cmd);
-      cmd.conf.aliases.forEach(alias => {
-        client.aliases.set(alias, cmd.help.name);
-      });
-      resolve();
-    } catch (e) {
-      reject(e);
+client.on('message', async (message) => {
+    if(message.author.bot) return;
+    if(message.content.indexOf(prefix) !== 0) return;
+
+    const args = message.content.slice(prefix.length).trim().split(/ +/g);
+    const command = args.shift().toLowerCase();
+
+    if(command == "play") {
+        if(!args[0]) return;
+        let url = args.join(" ");
+        if(!url.match(/(youtube.com|youtu.be)\/(watch)?(\?v=)?(\S+)?/)) return message.channel.send("Please provide a valid Youtube link!");
+
+        let serverQueue = queue.get(message.guild.id);
+        let vc = message.member.voice;
+
+        if(!vc) return message.channel.send("You are not in a voice channel!");
+
+        if(!vc.channel.permissionsFor(client.user).has('CONNECT') || !vc.channel.permissionsFor(client.user).has('SPEAK')) return message.channel.send("I do not have permission!");
+
+        let songinfo = await ytdl.getInfo(url);
+        let song = {
+            title: songinfo.title,
+            url: songinfo.video_url
+        }
+
+        if(!serverQueue) {
+            let queueConst = {
+                textChannel: message.channel,
+                voiceChannel: vc.channel,
+                connection: null,
+                songs: [],
+                volume: 5,
+                playing: true
+            };
+
+            queue.set(message.guild.id, queueConst);
+            queueConst.songs.push(song);
+
+            try {
+                let connection = await vc.channel.join();
+                queueConst.connection = connection
+                playSong(message.guild, queueConst.songs[0])
+            } catch (error) {
+                console.log(error);
+                queue.delete(message.guild.id);
+                return message.channel.send("There was an error playing the song! Error: " + error);
+            }
+        } else {
+            serverQueue.songs.push(song);
+            return message.channel.send(`${song.title} has been added to the queue!`)
+        }
     }
-  });
-};
+})
 
-client.load = command => {
-  return new Promise((resolve, reject) => {
-    try {
-      let cmd = require(`./komutlar/${command}`);
-      client.commands.set(command, cmd);
-      cmd.conf.aliases.forEach(alias => {
-        client.aliases.set(alias, cmd.help.name);
-      });
-      resolve();
-    } catch (e) {
-      reject(e);
+/**
+ * 
+ * @param {Discord.Guild} guild 
+ * @param {Object} song 
+ */
+async function playSong(guild, song) {
+    let serverQueue = queue.get(guild.id);
+
+    if(!song){
+        serverQueue.voiceChannel.leave();
+        queue.delete(guild.id);
+        return;
     }
-  });
-};
 
-client.unload = command => {
-  return new Promise((resolve, reject) => {
-    try {
-      delete require.cache[require.resolve(`./komutlar/${command}`)];
-      let cmd = require(`./komutlar/${command}`);
-      client.commands.delete(command);
-      client.aliases.forEach((cmd, alias) => {
-        if (cmd === command) client.aliases.delete(alias);
-      });
-      resolve();
-    } catch (e) {
-      reject(e);
-    }
-  });
-};
+    const dispatcher = serverQueue.connection.play(ytdl(song.url)).on('end', () => {
+        serverQueue.songs.shift();
+        playSong(guild, serverQueue.songs[0]);
+    })
+    .on('error', () => {
+        console.log(error)
+    })
 
-client.elevation = message => {
-  if (!message.guild) {
-    return;
-  }
-  let permlvl = 0;
-  if (message.member.hasPermission("BAN_MEMBERS")) permlvl = 2;
-  if (message.member.hasPermission("ADMINISTRATOR")) permlvl = 3;
-  if (message.author.id === ayarlar.sahip) permlvl = 4;
-  return permlvl;
-};
+    dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
+}
 
-var regToken = /[\w\d]{24}\.[\w\d]{6}\.[\w\d-_]{27}/g;
-// client.on('debug', e => {
-//   console.log(chalk.bgBlue.green(e.replace(regToken, 'that was redacted')));
-// });
-
-client.on("warn", e => {
-  console.log(chalk.bgYellow(e.replace(regToken, "that was redacted")));
-});
-
-client.on("error", e => {
-  console.log(chalk.bgRed(e.replace(regToken, "that was redacted")));
-});
-
-client.login(ayarlar.token);
-
-//--------------------------------KOMUTLAR-------------------------------\\
+client.login(token)
