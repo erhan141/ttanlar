@@ -6,7 +6,7 @@
 
 **Kolpaçino Ogün :D**
 
-- EMEGE SAYGI 
+- Emeğe Saygı
 
 - Discord Adresımız : [TIKLA](https://discord.gg/kobs)
 

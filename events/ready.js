@@ -9,5 +9,5 @@ client.user.setActivity(`Lastarmy V12 Kayıt Sistemi`, { type: "WATCHING"});
 //LISTENING = DİNLİYOR
   //WATCHING = İZLİYOR
   //PLAYING = OYNUYOR 
- console.log(`Bot Akitf Komutlar Y`);
+ console.log(`Bot Akitf Komutlar Yüklendi !`);
 };
