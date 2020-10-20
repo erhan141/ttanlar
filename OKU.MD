@@ -12,8 +12,8 @@
 
 - Hazırlayan :  ``Kobs#0001 & Forcex#0001``
 
-# Rivals 
+# Titanlar 
 
-- Discord Adresi : [TIKLA](https://discord.gg/rivals)
+- Discord Adresi : [TIKLA](https://discord.gg/titanlar)
 
-- Üstteki Linkten Rivals Discord Sunucusuna Katılıp Doyasıya Sohbete Ortak Olun
+- Üstteki Linkten Titanlar Discord Sunucusuna Katılıp Doyasıya Sohbete Ortak Olun
