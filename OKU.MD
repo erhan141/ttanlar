@@ -12,8 +12,8 @@
 
 - Hazırlayan :  ``Kobs#0001 & Forcex#0001``
 
-# LastArmy 
+# Rivals 
 
-- Discord Adresi : [TIKLA](https://discord.gg/lastarmy)
+- Discord Adresi : [TIKLA](https://discord.gg/rivals)
 
-- Üstteki Linkten LastArmy Discord Sunucusuna Katılıp Doyasıya Sohbete Ortak Olun
+- Üstteki Linkten Rivals Discord Sunucusuna Katılıp Doyasıya Sohbete Ortak Olun
