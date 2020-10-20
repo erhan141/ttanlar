@@ -8,7 +8,7 @@ exports.run = async (client, message, args) => {
     .setDescription("Bu Komutu Kullanmaya Yetkin Yok")
       if(!message.member.roles.cache.has("762306051336437800")) return message.channel.send(embed1);
 
-   let user = message.guild.member(message.mentions.users.first()) || message.guild.members.get(args[0]);
+   let user = message.guild.member(message.mentions.users.first()) || message.guild.members.cache.get(args[0]);
  
 
 let isim  =  args[1]
@@ -19,7 +19,7 @@ if(!user) return message.channel.send(`Lütfen geçerli bir kullanıcı veya ID 
   user.roles.add("762306052699324446")
   user.roles.remove("762306275916644372")
 
-message.react(':white_check_mark:')
+message.react('✅')
 }
  
 exports.conf = {
