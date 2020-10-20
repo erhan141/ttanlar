@@ -14,18 +14,24 @@ setInterval(() => {
 const Discord = require("discord.js");
 const db = require('quick.db')
 const client = new Discord.Client();
-const ayarlar = require("./ayarlar.json");
 const fs = require("fs");
 const moment = require("moment");
 moment.locale("tr")
 const chalk = require("chalk");
 require("./util/eventLoader")(client);
 
-var prefix = ayarlar.prefix;
+
 
 const log = message => {
   console.log(`[${moment().format("YYYY-MM-DD HH:mm:ss")}] ${message}`);
 };
+
+
+client.kobs = {
+  "prefix": "!",
+  "sahip": "sahipİD",
+  "token": "NzYxMjMyNTE0MTQwMDc4MDkx.X3XnBg.iQG-_XQOSUPsk_MHJJlGlm4kYUE"
+}
 
 client.commands = new Discord.Collection();
 client.aliases = new Discord.Collection();
@@ -100,7 +106,7 @@ client.elevation = message => {
   let permlvl = 0;
   if (message.member.hasPermission("BAN_MEMBERS")) permlvl = 2;
   if (message.member.hasPermission("ADMINISTRATOR")) permlvl = 3;
-  if (message.author.id === ayarlar.sahip) permlvl = 4;
+  if (message.author.id === client.kobs.sahip) permlvl = 4;
   return permlvl;
 };
 
@@ -117,6 +123,6 @@ client.on("error", e => {
   console.log(chalk.bgRed(e.replace(regToken, "that was redacted")));
 });
 
-client.login(ayarlar.token);
+client.login(client.kobs.token);
 
 //--------------------------------KOMUTLAR-------------------------------\\
