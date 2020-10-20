@@ -16,15 +16,17 @@ let yaş =  args[2]
 
 if(!user) return message.channel.send(`Lütfen geçerli bir kullanıcı veya ID belirt.`)
   
- user.setNickname(`Lütfen Bekleyiniz.`)
+ await user.setNickname(`Lütfen Bekleyiniz.`)
   user.roles.add("762306051999531068")
   user.roles.remove("762306275916644372")
   
-  .setTimeout(() => {
-    user.setNickname(`${isim} | ${yaş}`)
+  message.react('✅')
+  
+  setTimeout(() => {
+    user.setNickname(`${isim} • ${yaş}`)
   },5000)
 
-message.react('✅')
+
 }
  
 exports.conf = {
