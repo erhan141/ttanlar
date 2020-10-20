@@ -1,5 +1,4 @@
 module.exports = client => {
-  console.log(`${client.user.username} ismi ile giriş yapıldı!`);
   client.user.setStatus("online");
   //idle = boşta
   //dnd = rahatsız etmeyin
@@ -10,5 +9,5 @@ client.user.setActivity(`Lastarmy V12 Kayıt Sistemi`, { type: "WATCHING"});
 //LISTENING = DİNLİYOR
   //WATCHING = İZLİYOR
   //PLAYING = OYNUYOR 
- console.log(`${client.user.username}: Şu an ` + client.channels.size + ` adet kanala, ` + client.guilds.size + ` adet sunucuya ve ` + ` kullanıcıya hizmet veriliyor!`);
+ console.log(`Bot Akitf Komutlar Y`);
 };
